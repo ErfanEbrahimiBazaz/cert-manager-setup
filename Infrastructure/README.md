@@ -105,17 +105,19 @@ kubectl exec -it razor-app-7799bc6677-crn4c -n dotnet-application -- netstat -tu
 
 ```
 
+**Note**: CertificateIssuer which is a custome resource definition doesn't have a namespace, a so-called non-namespaced resource.
+
 ## To Dos
 
-1- How to connect an ACR to K8S cluster?
-2- How to deploy a razor page web app to K8S in a new namespace?
-3- How to use the cert-manager to issue a certificate?
-4- How does our application utilize the issued certificate?
-5- Github workflows to automate build an push images into ACR by using dockerfile.
-6- Replace the following line with bicep:
+1. How to connect an ACR to K8S cluster?
+2. How to deploy a razor page web app to K8S in a new namespace?
+3. How to use the cert-manager to issue a certificate?
+4. How does our application utilize the issued certificate?
+5. Github workflows to automate build an push images into ACR by using dockerfile.
+6. Replace the following line with bicep:
 ```
 az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 ```
-7- Make all AKS services private, and expose them via ingress or alternative solutions.
-8- Create a keyvault with Bicep.
-9- Create a bash script to sync certificates from AKS to keyvault.
+7. Make all AKS services private, and expose them via ingress or alternative solutions.
+8. Create a keyvault with Bicep.
+9. Create a bash script to sync certificates from AKS to keyvault.
