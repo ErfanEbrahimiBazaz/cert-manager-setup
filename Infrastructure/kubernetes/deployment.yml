@@ -28,5 +28,8 @@ spec:
           imagePullPolicy: Always
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8080
               protocol: TCP
+          # env:
+          #   - name: ASPNETCORE_HTTP_PORTS
+          #     value: "80"

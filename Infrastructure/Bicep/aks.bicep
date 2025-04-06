@@ -79,12 +79,11 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
 // Role assignment to allow AKS to pull images from ACR
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(aks.id, 'acrpull-role-assignment')  // Ensure a unique name
-  // scope: {
-  //   acr.id
-  // }
+  scope: acr
   properties: {
     principalId: aks.identity.principalId
-    roleDefinitionId: 'AcrPull'  // Role to allow pulling from ACR
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d') // //'AcrPull'  // Role to allow pulling from ACR
+    principalType: 'ServicePrincipal'
   }
 }
 
