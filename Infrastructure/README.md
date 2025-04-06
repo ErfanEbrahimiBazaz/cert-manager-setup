@@ -1,5 +1,14 @@
 ## Setting up infrastructure
 
+We are using bicep to setup the infrastructure. The bicep files can be found under Infrastructure/Bicep folder.
+
+To generate a public-private key pair to connect to the nodes if necessary, you can use the following command:
+```
+ssh-keygen -t rsa -b 4096 -f aks_key
+```
+
+![Infrastructure setup](Images/Infrastructure.png)
+
 ## Connect to kubernetes cluster
 ```
 az account set --subscription b822363d-6075-4596-987a-1f24bce600dd
