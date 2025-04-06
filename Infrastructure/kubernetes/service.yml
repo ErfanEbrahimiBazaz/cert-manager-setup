@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: razor-app
+  namespace: dotnet-application
+  labels: {}
+spec:
+  type: LoadBalancer #ClusterIP #LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector: 
+    app: razor-app
