@@ -9,33 +9,60 @@ ssh-keygen -t rsa -b 4096 -f aks_key
 
 ![Infrastructure setup](Images/Infrastructure.png)
 
+## Executing the bicep commands:
+
+```
+az deployment sub create --location westeurope --template-file main.bicep --mode Complete
+```
+
 ## Connect to kubernetes cluster
 ```
 az account set --subscription b822363d-6075-4596-987a-1f24bce600dd
 az aks get-credentials --resource-group CertificateIssuer101 --name aks101cluster --overwrite-existing
 ```
-## Read Kubernetes resources
-```
-kubectl get deployments --all-namespaces=true
-kubectl get deployments --namespace <namespace-name>
-kubectl describe deployment <deployment-name> --namespace <namespace-name>
-kubectl logs -l <label-key>=<label-value>
-kubectl logs -l app=razor-app -n dotnet-application
-```
 
-## Setting up cert-manager
+## Setting up cert-manage on K8S
+
 cert-manager is a powerful and extensible X.509 certificate controller for Kubernetes and OpenShift workloads. It will obtain certificates from a variety of Issuers, both popular public Issuers as well as private Issuers, and ensure the certificates are valid and up-to-date, and will attempt to renew certificates at a configured time before expiry.
 
-### Install helm
+1. Setup the right powershell flags/environment variables:
 ```
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')
+```
+2. Install helm on your local machine using winget or choco (choco is recommended):
+```
+choco install kubernetes-helm
+# or
 winget install Helm
 ```
+3. Install cert-manager helm repo:
+```
+helm repo add jetstack https://charts.jetstack.io --force-update
+```
+
+4. Install cert-manager:
+```
+helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.17.0 \
+  --set crds.enabled=true
+
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.17.0 --set crds.enabled=true
+```
+
+**Note:** Step 1 to 3 have to be applied once per machine.
 
 ## Containerize application
 
 ## Push applicaiton to ACR
 
+## K9S commands
+
 ## Attach ACR to AKS
+
+For some reasons Bicep fails to connet ACR to AKS. Run the following to connect these two:
 
 ```
 az aks update -n <AKS_CLUSTER_NAME> -g <RESOURCE_GROUP> --attach-acr <ACR_NAME>
@@ -87,6 +114,11 @@ spec:
 kubectl apply -f deployment.yml -n dotnet-application
 ```
 
+Note: In case you need to delete a deployment, use:
+```
+kubectl delete -f deployment.yml -n dotnet-application
+```
+
 3. Create a service
 ```
 apiVersion: v1
@@ -104,9 +136,30 @@ spec:
       name: http
   selector: 
     app: razor-app
-
-# kubectl apply -f service.yaml -n sample
 ```
+
+Apply the changes:
+
+```
+kubectl apply -f service.yml -n dotnet-application
+```
+
+Note: In case to delete a service, use:
+
+```
+kubectl delete -f deployment.yml -n dotnet-application
+```
+
+## Read Kubernetes resources
+```
+kubectl get deployments --all-namespaces=true
+kubectl get deployments --namespace <namespace-name>
+kubectl describe deployment <deployment-name> --namespace <namespace-name>
+kubectl logs -l <label-key>=<label-value>
+kubectl logs -l app=razor-app -n dotnet-application
+```
+
+## Debugging
 ### Connecting to a running pod
 ```
 kubectl exec -it <pod-name> -n dotnet-application -- netstat -tulpn
@@ -130,3 +183,4 @@ az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 7. Make all AKS services private, and expose them via ingress or alternative solutions.
 8. Create a keyvault with Bicep.
 9. Create a bash script to sync certificates from AKS to keyvault.
+10. K9S commands
