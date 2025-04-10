@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: razor-app
+  name: razor-app-deployment
   namespace: dotnet-application
 spec:
   replicas: 1
@@ -17,13 +17,13 @@ spec:
   template:
     metadata:
       labels:
-        app: razor-app
+        app: razor-app # Must be the same as Deployment name -- spec.selector.matchLabels
     spec:
       nodeSelector:
         "kubernetes.io/os": linux
       serviceAccountName: default
       containers:
-        - name: razor-app
+        - name: razor-app-container
           image: aks101acr.azurecr.io/aks-app1:1.0.0
           imagePullPolicy: Always
           ports:

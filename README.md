@@ -167,6 +167,46 @@ kubectl exec -it razor-app-7799bc6677-crn4c -n dotnet-application -- netstat -tu
 
 ```
 
+## Selector and label naming
+
+1. In deployment file spec.selector.matchLabels has to be same as spec.template.metadata.Labels
+
+```
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: razor-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: razor-app
+```
+
+2. In deployment file and service file must have the same label:
+
+label in deployment
+
+```
+# deployment.yml
+template:
+  metadata:
+    labels:
+      app: razor-app-deployment-selector
+```
+Selector in service:
+```
+# servive.yml
+selector:
+  app: razor-app-service-selector
+```
+
 **Note**: CertificateIssuer which is a custome resource definition doesn't have a namespace, a so-called non-namespaced resource.
 
 ## To Dos

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: razor-app
+  name: razor-app-service
   namespace: dotnet-application
   labels: {}
 spec:
