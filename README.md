@@ -9,15 +9,31 @@ ssh-keygen -t rsa -b 4096 -f aks_key
 
 ![Infrastructure setup](Images/Infrastructure.png)
 
+
+
+## Login to Azure
+```
+az login
+az account set --subscription b822363d-6075-4596-987a-1f24bce600dd
+```
+
 ## Executing the bicep commands:
 
 ```
 az deployment sub create --location westeurope --template-file main.bicep --mode Complete
 ```
 
+## Attach ACR to AKS (Has to be merged with IaC)
+
+For some reasons Bicep fails to connet ACR to AKS. Run the following to connect these two:
+
+```
+az aks update -n <AKS_CLUSTER_NAME> -g <RESOURCE_GROUP> --attach-acr <ACR_NAME>
+az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
+```
+
 ## Connect to kubernetes cluster
 ```
-az account set --subscription b822363d-6075-4596-987a-1f24bce600dd
 az aks get-credentials --resource-group CertificateIssuer101 --name aks101cluster --overwrite-existing
 ```
 
@@ -60,16 +76,10 @@ helm install cert-manager jetstack/cert-manager --namespace cert-manager --creat
 
 ## K9S commands
 
-## Attach ACR to AKS
+## Deploy dotnet application 
 
-For some reasons Bicep fails to connet ACR to AKS. Run the following to connect these two:
+### Create necessary kubernetes resources including namespace to deploy the application to, deployments and services.
 
-```
-az aks update -n <AKS_CLUSTER_NAME> -g <RESOURCE_GROUP> --attach-acr <ACR_NAME>
-az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
-```
-
-## Create Kubernetes Resources
 1. Create a new namespace
 ```
 kubectl create namespace dotnet-application
@@ -157,6 +167,8 @@ kubectl get deployments --namespace <namespace-name>
 kubectl describe deployment <deployment-name> --namespace <namespace-name>
 kubectl logs -l <label-key>=<label-value>
 kubectl logs -l app=razor-app -n dotnet-application
+kubectl get all --all-namespaces=true
+kubectl get all --namespace=dotnet-application
 ```
 
 ## Debugging

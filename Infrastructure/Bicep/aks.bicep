@@ -4,6 +4,9 @@ param clusterName string = 'aks101cluster'
 @description('The location of the Managed Cluster resource.')
 param location string //= resourceGroup().location
 
+@description('The location of the DNS zone.')
+param dnsLocation string = 'global'
+
 @description('Optional DNS prefix to use with hosted Kubernetes API server FQDN.')
 param dnsPrefix string
 
@@ -31,6 +34,9 @@ param acrName string = 'aks101acr'
 
 @description('The SKU for the ACR (Basic, Standard, Premium).')
 param acrSku string = 'Standard'
+
+@description('The name of the DNS zone (e.g., example.com)')
+param domainName string
 
 resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' = {
   name: acrName
@@ -85,6 +91,11 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d') // //'AcrPull'  // Role to allow pulling from ACR
     principalType: 'ServicePrincipal'
   }
+}
+
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: domainName
+  location: dnsLocation
 }
 
 output controlPlaneFQDN string = aks.properties.fqdn
