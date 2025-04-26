@@ -83,7 +83,32 @@ kubectl get configmap -n dotnet-application
 kubectl delete configmap postgres-secret -n dotnet-application
 ```
 
-2.5 
+We need to keep the storages and share the database data to another external volume. 
+- So we updated our bicep to create a Azure Managed Disk (the code exist in aks.bicep file)
+
+(we assigned the role management manually to assign the contributor role on Azure Managed Disk )
+
+Then created files for 
+postgres.pv 
+postgrespvc and 
+postgresstatefulset
+
+
+Apply Pv file to apply persistance Volume already created using bicep 
+```
+kubectl apply -f postgres.pv.yml
+```
+
+Apply PVC file 
+```
+kubectl apply -f postgres.pvc.yml -n dotnet-application
+```
+
+Apply Stateful
+```
+kubectl apply -f postgres.statefulset.yml -n dotnet-application
+```
+
 
 3- Create a deployment file:
 ```
