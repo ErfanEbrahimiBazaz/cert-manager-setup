@@ -29,7 +29,7 @@ For some reasons Bicep fails to connet ACR to AKS. Run the following to connect 
 
 ```
 az aks update -n <AKS_CLUSTER_NAME> -g <RESOURCE_GROUP> --attach-acr <ACR_NAME>
-az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101moacr
+az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 ```
 
 ## Connect to kubernetes cluster
