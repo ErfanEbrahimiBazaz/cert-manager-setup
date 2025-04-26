@@ -29,7 +29,7 @@ For some reasons Bicep fails to connet ACR to AKS. Run the following to connect 
 
 ```
 az aks update -n <AKS_CLUSTER_NAME> -g <RESOURCE_GROUP> --attach-acr <ACR_NAME>
-az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101moacr
+az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 ```
 
 ## Connect to kubernetes cluster
@@ -89,9 +89,9 @@ We need to keep the storages and share the database data to another external vol
 (we assigned the role management manually to assign the contributor role on Azure Managed Disk )
 
 Then created files for 
-postgres.pv 
-postgrespvc and 
-postgresstatefulset
+** postgres.pv ** 
+** postgres.pvc ** 
+** postgres.statefulset **
 
 
 Apply Pv file to apply persistance Volume already created using bicep 

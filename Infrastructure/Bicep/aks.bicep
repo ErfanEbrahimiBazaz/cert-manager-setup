@@ -13,7 +13,7 @@ param dnsPrefix string
 @description('Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize.')
 @minValue(0)
 @maxValue(1023)
-param osDiskSizeGB int = 8
+param osDiskSizeGB int = 0
 
 @description('The number of nodes for the cluster.')
 @minValue(1)
@@ -30,7 +30,7 @@ param linuxAdminUsername string = 'mouser101'
 param sshRSAPublicKey string
 
 @description('The name of the Azure Container Registry (ACR).')
-param acrName string = 'aks101moacr'
+param acrName string = 'aks101acr'
 
 @description('The SKU for the ACR (Basic, Standard, Premium).')
 param acrSku string = 'Standard'
