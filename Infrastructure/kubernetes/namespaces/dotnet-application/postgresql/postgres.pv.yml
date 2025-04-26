@@ -14,5 +14,11 @@ spec:
   azureDisk:
     kind: Managed
     diskName: pg-disk
-    diskURI: "/subscriptions/34e29c3a-38a3-4f12-a3b9-990eca0cbcbf/resourceGroups/CertificateIssuer101/providers/Microsoft.Compute/disks/aks101cluster-disk"
+    diskURI: "/subscriptions/b822363d-6075-4596-987a-1f24bce600dd/resourceGroups/CertificateIssuer101/providers/Microsoft.Compute/disks/pg-disk"
 
+  # hostPath:
+  #   path: /data/postgresql
+
+  # kubectl apply -f postgres.pv.yml 
+  # kubectl get pv
+  # kubectl delete pv postgres-volume -n dotnet-application

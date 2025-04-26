@@ -1,5 +1,4 @@
 apiVersion: v1
-
 kind: PersistentVolumeClaim
 metadata:
   namespace: dotnet-application
@@ -14,3 +13,8 @@ spec:
   resources:
     requests:
       storage: 1Gi
+
+
+# kubectl apply -f postgres.pvc.yml -n dotnet-application
+# kubectl get pvc -n dotnet-application
+# kubectl delete pvc postgres-volume-claim -n dotnet-application

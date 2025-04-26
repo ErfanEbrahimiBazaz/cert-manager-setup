@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,5 +8,11 @@ metadata:
     app: postgres
 data:
   POSTGRES_DB: ps_db
-  POSTGRES_USER: ps_user
-  POSTGRES_PASSWORD: SecurePassword123
+  POSTGRES_USER: postgres #ps_user
+  POSTGRES_PASSWORD: postgres #SecurePassword123
+  
+
+# kubectl apply -f postgres.configMap.yml -n dotnet-application
+# kubectl get configmap -n dotnet-application
+# kubectl delete configmap postgres-secret -n dotnet-application
+# kubectl get configmap postgres-envs -n dotnet-application -o yaml

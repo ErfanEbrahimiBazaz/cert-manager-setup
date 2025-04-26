@@ -14,19 +14,39 @@ spec:
       labels:
         app: postgres
     spec:
+      initContainers:
+        - name: volume-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 999:999 /mnt/data"]
+          volumeMounts:
+            - mountPath: /mnt/data #/var/lib/postgresql/data
+              name: postgredb
       containers:
         - name: postgres
-          image: postgres:10.1
+          image: postgres:17.4 
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 5432
           envFrom:
             - configMapRef:
                 name: postgres-envs 
+          # env:
+          #   - name: POSTGRES_PASSWORD
+          #     valueFrom:
+          #       secretKeyRef:
+          #         name: postgres-secret
+          #         key: POSTGRES_PASSWORD
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
+            - mountPath:  /mnt/data # /var/lib/postgresql/data
               name: postgredb
       volumes:
         - name: postgredb
           persistentVolumeClaim:
             claimName: postgres-volume-claim
+
+# kubectl apply -f postgres.statefulset.yml -n dotnet-application
+# kubectl get statefulset -n dotnet-application
+# kubectl delete statefulset postgres -n dotnet-application
+# kubectl describe statefulset postgres -n dotnet-application
+
+
