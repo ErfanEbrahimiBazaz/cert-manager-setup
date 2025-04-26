@@ -30,7 +30,7 @@ param linuxAdminUsername string = 'mouser101'
 param sshRSAPublicKey string
 
 @description('The name of the Azure Container Registry (ACR).')
-param acrName string = 'aks101acr'
+param acrName string = 'aks101moacr'
 
 @description('The SKU for the ACR (Basic, Standard, Premium).')
 param acrSku string = 'Standard'
