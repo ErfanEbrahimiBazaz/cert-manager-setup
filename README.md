@@ -20,7 +20,7 @@ az account set --subscription b822363d-6075-4596-987a-1f24bce600dd
 ## Executing the bicep commands:
 
 ```
-az deployment sub create --location westeurope --template-file main.bicep --mode Complete
+az deployment sub create --location westeurope --template-file main.bicep
 ```
 
 ## Attach ACR to AKS (Has to be merged with IaC)
@@ -37,39 +37,6 @@ az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 az aks get-credentials --resource-group CertificateIssuer101 --name aks101cluster --overwrite-existing
 ```
 
-## Setting up cert-manage on K8S
-
-cert-manager is a powerful and extensible X.509 certificate controller for Kubernetes and OpenShift workloads. It will obtain certificates from a variety of Issuers, both popular public Issuers as well as private Issuers, and ensure the certificates are valid and up-to-date, and will attempt to renew certificates at a configured time before expiry.
-
-1. Setup the right powershell flags/environment variables:
-```
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')
-```
-2. Install helm on your local machine using winget or choco (choco is recommended):
-```
-choco install kubernetes-helm
-# or
-winget install Helm
-```
-3. Install cert-manager helm repo:
-```
-helm repo add jetstack https://charts.jetstack.io --force-update
-```
-
-4. Install cert-manager:
-```
-helm install \
-  cert-manager jetstack/cert-manager \
-  --namespace cert-manager \
-  --create-namespace \
-  --version v1.17.0 \
-  --set crds.enabled=true
-
-helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.17.0 --set crds.enabled=true
-```
-
-**Note:** Step 1 to 3 have to be applied once per machine.
-
 ## Containerize application
 
 ## Push applicaiton to ACR
@@ -84,7 +51,66 @@ helm install cert-manager jetstack/cert-manager --namespace cert-manager --creat
 ```
 kubectl create namespace dotnet-application
 ```
-2- Create a deployment file:
+
+2. Create a configMap: config map is being used for setting the environemnt variables. 
+**NOTE: Sensitive data must be saved in K8S secrets.** (currently we are not setting this secrets)
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-envs
+  namespace: dotnet-application
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: ps_db
+  POSTGRES_USER: ps_user
+  POSTGRES_PASSWORD: SecurePassword123
+```
+
+2.2 Apply the config map in a particuler name-space
+```
+kubectl apply -f postgres.configMap.yml -n dotnet-application
+```
+
+2.3 Get all the config maps for a name-space:
+```
+kubectl get configmap -n dotnet-application
+```
+
+2.4 in case if you want to delete the config map let`s use the command below:
+```
+kubectl delete configmap postgres-secret -n dotnet-application
+```
+
+We need to keep the storages and share the database data to another external volume. 
+- So we updated our bicep to create a Azure Managed Disk (the code exist in aks.bicep file)
+
+(we assigned the role management manually to assign the contributor role on Azure Managed Disk )
+
+Then created files for 
+** postgres.pv ** 
+** postgres.pvc ** 
+** postgres.statefulset **
+
+
+Apply Pv file to apply persistance Volume already created using bicep 
+```
+kubectl apply -f postgres.pv.yml
+```
+
+Apply PVC file 
+```
+kubectl apply -f postgres.pvc.yml -n dotnet-application
+```
+
+Apply Stateful
+```
+kubectl apply -f postgres.statefulset.yml -n dotnet-application
+```
+
+
+3- Create a deployment file:
 ```
 apiVersion: apps/v1
 kind: Deployment
@@ -119,7 +145,7 @@ spec:
               containerPort: 80
               protocol: TCP
 ```
-2.2. Apply the deployment file:
+3.2. Apply the deployment file:
 ```
 kubectl apply -f deployment.yml -n dotnet-application
 ```
@@ -129,7 +155,7 @@ Note: In case you need to delete a deployment, use:
 kubectl delete -f deployment.yml -n dotnet-application
 ```
 
-3. Create a service
+4. Create a service
 ```
 apiVersion: v1
 kind: Service
@@ -159,6 +185,39 @@ Note: In case to delete a service, use:
 ```
 kubectl delete -f deployment.yml -n dotnet-application
 ```
+
+## Setting up cert-manage on K8S
+
+cert-manager is a powerful and extensible X.509 certificate controller for Kubernetes and OpenShift workloads. It will obtain certificates from a variety of Issuers, both popular public Issuers as well as private Issuers, and ensure the certificates are valid and up-to-date, and will attempt to renew certificates at a configured time before expiry.
+
+1. Setup the right powershell flags/environment variables:
+```
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')
+```
+2. Install helm on your local machine using winget or choco (choco is recommended):
+```
+choco install kubernetes-helm
+# or
+winget install Helm
+```
+3. Install cert-manager helm repo:
+```
+helm repo add jetstack https://charts.jetstack.io --force-update
+```
+
+4. Install cert-manager:
+```
+helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.17.0 \
+  --set crds.enabled=true
+
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.17.0 --set crds.enabled=true
+```
+
+**Note:** Step 1 to 3 have to be applied once per machine.
 
 ## Read Kubernetes resources
 ```
@@ -236,3 +295,4 @@ az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 8. Create a keyvault with Bicep.
 9. Create a bash script to sync certificates from AKS to keyvault.
 10. K9S commands
+11. Sensitive data must be saved in K8S secrets

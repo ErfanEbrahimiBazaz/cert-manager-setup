@@ -19,6 +19,7 @@ module aksModule 'aks.bicep' = {
     agentVMSize: 'Standard_D2s_v3'
     osDiskSizeGB: 0
     linuxAdminUsername: 'azureuser'
-    sshRSAPublicKey: '<replace with your own key>'
+    sshRSAPublicKey: ''
+    domainName: 'moravaei.com'
   }
 }
