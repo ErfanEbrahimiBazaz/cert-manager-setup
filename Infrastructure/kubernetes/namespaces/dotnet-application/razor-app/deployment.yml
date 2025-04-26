@@ -24,7 +24,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: razor-app-container
-          image: aks101acr.azurecr.io/aks-app1:1.0.0
+          image: aks101acr.azurecr.io/aks-app1:1.1.0
           imagePullPolicy: Always
           ports:
             - name: http
