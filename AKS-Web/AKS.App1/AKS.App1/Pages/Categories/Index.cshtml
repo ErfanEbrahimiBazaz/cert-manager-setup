@@ -1,0 +1,30 @@
+﻿@page
+@model AKS.App1.Pages.Categories.IndexModel
+@{
+    ViewData["Title"] = "Categories List";
+}
+
+<h1>Categories</h1>
+
+<a class="btn btn-primary" asp-page="/Categories/Create">Create New Category</a>
+<a class="btn btn-secondary" asp-page="/Index">Return to Home</a>
+
+<table class="table table-striped mt-4">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model.Categories)
+        {
+            <tr>
+                <td>@category.CategoryName</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

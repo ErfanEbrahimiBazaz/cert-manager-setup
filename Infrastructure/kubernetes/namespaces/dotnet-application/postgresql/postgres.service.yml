@@ -13,3 +13,6 @@ spec:
       protocol: TCP
   selector:
     app: postgres
+
+# kubectl apply -f postgres.service.yml -n dotnet-application
+# kubectl exec -it postgres-0 -n dotnet-application -- /bin/bash

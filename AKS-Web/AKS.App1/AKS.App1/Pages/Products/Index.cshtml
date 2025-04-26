@@ -1,0 +1,28 @@
+﻿@page
+@model AKS.App1.Pages.Products.IndexModel
+@{
+    ViewData["Title"] = "Products List";
+}
+
+<h1>Products</h1>
+
+<a class="btn btn-primary" asp-page="/Products/Create">Create New Product</a>
+<a class="btn btn-secondary" asp-page="/Index">Return to Home</a>
+
+<table class="table table-striped mt-4">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Category</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model.Products)
+        {
+            <tr>
+                <td>@product.ProductName</td>
+                <td>@product.ProductCategory?.CategoryName</td>
+            </tr>
+        }
+    </tbody>
+</table>

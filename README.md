@@ -44,6 +44,12 @@ az aks get-credentials --resource-group CertificateIssuer101 --name aks101cluste
 ## K9S commands
 
 ## Deploy dotnet application 
+For migrating any changes to the database run the migraiton commands:
+
+```
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+```
 
 ### Create necessary kubernetes resources including namespace to deploy the application to, deployments and services.
 

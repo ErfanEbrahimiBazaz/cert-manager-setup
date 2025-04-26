@@ -1,0 +1,26 @@
+﻿@page
+@model AKS.App1.Pages.Products.CreateModel
+@{
+    ViewData["Title"] = "Create Product";
+}
+
+<h1>Create Product</h1>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Product.ProductName"></label>
+        <input asp-for="Product.ProductName" class="form-control" />
+        <span asp-validation-for="Product.ProductName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Product.ProductCategoryId">Category</label>
+        <select asp-for="Product.ProductCategoryId" asp-items="Model.CategoryOptions" class="form-control">
+            <option value="">-- Select Category --</option>
+        </select>
+        <span asp-validation-for="Product.ProductCategoryId" class="text-danger"></span>
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

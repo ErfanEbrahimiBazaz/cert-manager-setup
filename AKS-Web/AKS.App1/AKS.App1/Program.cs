@@ -1,7 +1,11 @@
+using AKS.App1.Application.Context;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<ProductDbContext>(dbContextOptions => dbContextOptions.UseNpgsql(builder.Configuration.GetConnectionString("localPostgres")));
 
 var app = builder.Build();
 
