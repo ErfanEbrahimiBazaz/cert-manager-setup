@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -48,5 +49,10 @@ spec:
 # kubectl get statefulset -n dotnet-application
 # kubectl delete statefulset postgres -n dotnet-application
 # kubectl describe statefulset postgres -n dotnet-application
+# kubectl exec -it postgres-0 -n dotnet-application -- bash
+# psql -U postgres
+# \l   -- List databases
+# \c ps_db
+# \dt
 
 

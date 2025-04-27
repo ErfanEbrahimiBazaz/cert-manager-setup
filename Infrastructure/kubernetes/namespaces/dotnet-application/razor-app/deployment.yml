@@ -24,7 +24,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: razor-app-container
-          image: aks101acr.azurecr.io/aks-app1:1.1.0
+          image: aks101acr.azurecr.io/aks-app1:1.1.3
           imagePullPolicy: Always
           ports:
             - name: http
@@ -33,3 +33,8 @@ spec:
           # env:
           #   - name: ASPNETCORE_HTTP_PORTS
           #     value: "80"
+
+# kubectl delete -f .\deployment.yml -n dotnet-application
+# kubectl apply -f .\deployment.yml -n dotnet-application
+# kubectl exec  postgres-0 -it -n dotnet-application -- /bin/sh 
+# kubectl logs razor-app-deployment-7446fbf758-hljhr -n dotnet-application
