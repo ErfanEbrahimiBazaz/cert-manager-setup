@@ -28,10 +28,13 @@ spec:
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 5432
+          
           envFrom:
             - configMapRef:
                 name: postgres-envs 
-          # env:
+          env:
+            - name: PGDATA
+              value: /mnt/data/pgdata
           #   - name: POSTGRES_PASSWORD
           #     valueFrom:
           #       secretKeyRef:
@@ -54,5 +57,4 @@ spec:
 # \l   -- List databases
 # \c ps_db
 # \dt
-
-
+# SHOW data_directory;
