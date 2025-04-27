@@ -40,7 +40,7 @@ namespace AKS.App1.Migrations
 
                     b.HasIndex("ProductCategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("AKS.App1.Models.Entities.ProductCategory", b =>
@@ -57,7 +57,7 @@ namespace AKS.App1.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("ProductCategories");
+                    b.ToTable("ProductCategories", (string)null);
                 });
 
             modelBuilder.Entity("AKS.App1.Models.Entities.Product", b =>

@@ -15,6 +15,13 @@ spec:
       labels:
         app: postgres
     spec:
+      initContainers:
+        - name: volume-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 999:999 /mnt/data"]
+          volumeMounts:
+            - mountPath: /mnt/data
+              name: postgredb
       containers:
         - name: postgres
           image: postgres:17.4
@@ -25,7 +32,7 @@ spec:
             - configMapRef:
                 name: postgres-envs
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
+            - mountPath: /mnt/data
               name: postgres-storage
   volumeClaimTemplates:  # It doesn't need a pvc. It is definition of a dynamic pvc.
     - metadata:
@@ -36,4 +43,4 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 10Gi
+            storage: 8Gi

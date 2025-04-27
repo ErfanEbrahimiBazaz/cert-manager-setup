@@ -15,8 +15,8 @@ public class CreateModel(ProductDbContext context) : PageModel
     }
     public async Task<IActionResult> OnPostAsync()
     {
-        //    if (!ModelState.IsValid)
-        //        return Page();
+        if (!ModelState.IsValid)
+            return Page();
 
         context.ProductCategories.Add(ProductCategory);
         await context.SaveChangesAsync();
