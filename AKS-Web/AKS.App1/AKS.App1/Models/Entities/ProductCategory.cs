@@ -7,6 +7,7 @@ namespace AKS.App1.Models.Entities;
 public class ProductCategory
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int CategoryId { get; set; }
 
     [Required]

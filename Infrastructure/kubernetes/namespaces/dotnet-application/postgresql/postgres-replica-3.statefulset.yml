@@ -1,11 +1,66 @@
 
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   namespace: dotnet-application
+#   name: postgres-ss
+# spec:
+#   serviceName: postgres-svc
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       app: postgres
+#   template:
+#     metadata:
+#       labels:
+#         app: postgres
+#     spec:
+#       initContainers:
+#         - name: volume-permissions
+#           image: busybox
+#           command: ["sh", "-c", "chown -R 999:999 /mnt/data"]
+#           volumeMounts:
+#             - mountPath: /mnt/data
+#               name: postgres-storage
+#       containers:
+#         - name: postgres
+#           image: postgres:17.4
+#           imagePullPolicy: "IfNotPresent"
+#           ports:
+#             - containerPort: 5432
+#           envFrom:
+#             - configMapRef:
+#                 name: postgres-envs
+#           env:
+#             - name: PGDATA
+#               value: /mnt/data/pgdata
+#           volumeMounts:
+#             - mountPath: /mnt/data
+#               name: postgres-storage
+#   volumeClaimTemplates:  # It doesn't need a pvc. It is definition of a dynamic pvc.
+#     - metadata:
+#         name: postgres-storage
+#       spec:
+#         storageClassName: managed-csi   # <-- Or your preferred StorageClass
+#         accessModes:
+#           - ReadWriteOnce
+#         resources:
+#           requests:
+#             storage: 8Gi
+
+# kubectl apply -f postgres-replica-3.statefulset.yml -n dotnet-application
+# kubectl delete -f postgres-replica-3.statefulset.yml -n dotnet-application
+# kubectl get statefulset -n dotnet-application
+# kubectl describe statefulset postgres-ss -n dotnet-application 
+# kubectl logs statefulset postgres-ss -n dotnet-application 
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   namespace: dotnet-application
-  name: postgres
+  name: postgres-ss
 spec:
-  serviceName: postgres
+  serviceName: postgres-svc
   replicas: 3
   selector:
     matchLabels:
@@ -21,7 +76,7 @@ spec:
           command: ["sh", "-c", "chown -R 999:999 /mnt/data"]
           volumeMounts:
             - mountPath: /mnt/data
-              name: postgredb
+              name: postgres-storage  
       containers:
         - name: postgres
           image: postgres:17.4
@@ -31,6 +86,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: postgres-envs
+          env:
+            - name: PGDATA
+              value: /mnt/data/pgdata
           volumeMounts:
             - mountPath: /mnt/data
               name: postgres-storage
@@ -38,7 +96,7 @@ spec:
     - metadata:
         name: postgres-storage
       spec:
-        storageClassName: managed-csi   # <-- Or your preferred StorageClass
+        storageClassName: managed-csi   
         accessModes:
           - ReadWriteOnce
         resources:
