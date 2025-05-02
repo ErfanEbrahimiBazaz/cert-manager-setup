@@ -6,7 +6,7 @@ metadata:
     type: local
     app: postgres
 spec:
-  storageClassName: ""
+  storageClassName: "" #managed-csi
   capacity:
     storage: 8Gi
   accessModes:
@@ -22,3 +22,20 @@ spec:
   # kubectl apply -f postgres.pv.yml 
   # kubectl get pv
   # kubectl delete pv postgres-volume -n dotnet-application
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.persistentVolume.name }}
+  labels:
+    type: {{ .Values.persistentVolume.labels.type }}
+    app: {{ .Values.persistentVolume.labels.postgres }}
+spec:
+  storageClassName: {{.values.persistentVolume.storageClassName }}
+  capacity:
+    storage: {{ .Values.persistentVolume.capacity }}
+  accessModes: {{ .Values.persistentVolume.accessModes }}
+  azureDisk:
+    kind: {{ .Values.persistentVolume.azureDisk.kind }}
+    diskName: {{ .Values.persistentVolume.azureDisk.diskName }}
+    diskURI: {{ .Values.persistentVolume.azureDisk.diskURI }}

@@ -64,11 +64,11 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: postgres
+      app: postgres-ss
   template:
     metadata:
       labels:
-        app: postgres
+        app: postgres-ss
     spec:
       initContainers:
         - name: volume-permissions

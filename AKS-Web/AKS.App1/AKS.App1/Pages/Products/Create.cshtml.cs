@@ -26,11 +26,11 @@ public class CreateModel(ProductDbContext context) : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        //    if (!ModelState.IsValid)
-        //    {
-        //        await OnGetAsync(); // reload categories if form invalid
-        //        return Page();
-        //    }
+        if (!ModelState.IsValid)
+        {
+            await OnGetAsync(); // reload categories if form invalid
+            return Page();
+        }
 
         context.Products.Add(Product);
         await context.SaveChangesAsync();

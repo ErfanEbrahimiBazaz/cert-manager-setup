@@ -11,7 +11,7 @@ public class ProductCategory
     public int CategoryId { get; set; }
 
     [Required]
-    [MaxLength(100)]
+    [MaxLength(100)] 
     public string? CategoryName { get; set; }
     //[AllowNull]
     //[NotMapped]

@@ -192,6 +192,112 @@ Note: In case to delete a service, use:
 kubectl delete -f deployment.yml -n dotnet-application
 ```
 
+## Helm
+After everything is created directly by using kubernetes API server, we can start using helm. 
+
+Helm is a package maanger that packages all the resource definitions into one chart, and facilitate creation of all the dependent resources together. This makes versioning and rollback much easier. As everything will run with only one command, the whole implementation is considerably faster and less error-proned.
+
+1. In order to create a helm chart run the following command:
+
+```
+helm create chart_name
+helm create postgres
+```
+
+This will automatically create the following structure:
+
+```
+postgres/
+├── charts/
+├── templates/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── statefulset.yaml
+│   ├── pvc.yaml
+│   └── _helpers.tpl
+├── Chart.yaml
+└── values.yaml
+```
+
+2. For each f teh resources, setup the correct values in values.yml. As an example the following pv.yaml will translate into the corresponding values.yml:
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-volume
+  labels:
+    type: local
+    app: postgres
+spec:
+  storageClassName: "" #managed-csi
+  capacity:
+    storage: 8Gi
+  accessModes:
+    - ReadWriteOnce
+  azureDisk:
+    kind: Managed
+    diskName: pg-disk
+    diskURI: "/subscriptions/b822363d-6075-4596-987a-1f24bce600dd/resourceGroups/CertificateIssuer101/providers/Microsoft.Compute/disks/pg-disk"
+```
+
+values.yml:
+```
+PersistentVolume:  
+  name: postgres-volume
+  labels:
+    type: local
+    app: postgres
+  storageClassName: ""
+  capacity: 8Gi
+  accessModes: 
+    - ReadWriteOnce
+  azureDisk:
+    Kind: Managed 
+    diskName: pg-disk
+    diskURI: "/subscriptions/b822363d-6075-4596-987a-1f24bce600dd/resourceGroups/CertificateIssuer101/providers/Microsoft.Compute/disks/pg-disk"
+```
+
+3. Then adopt the pv.yml in the template folder by using the values.yml:
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.persistentVolume.name }}
+  labels:
+    type: {{ .Values.persistentVolume.labels.type }}
+    app: {{ .Values.persistentVolume.labels.postgres }}
+spec:
+  storageClassName: {{.values.persistentVolume.storageClassName }}
+  capacity:
+    storage: {{ .Values.persistentVolume.capacity }}
+  accessModes: {{ .Values.persistentVolume.accessModes }}
+  azureDisk:
+    kind: {{ .Values.persistentVolume.azureDisk.kind }}
+    diskName: {{ .Values.persistentVolume.azureDisk.diskName }}
+    diskURI: {{ .Values.persistentVolume.azureDisk.diskURI }}
+```
+
+After everything is setup, install the chart by giving it a name, run the following command on the root folder where postgres chart resides.:
+
+```
+helm install postgres-package ./postgres -n dotnet-application
+```
+
+In case we need to rollback, we can run the following command:
+
+```
+helm rollback postgres-package 1 -n dotnet-application
+```
+
+4. Use helm template to check the template you have built is valid:
+```
+helm template .\postgres\
+```
+
+**Note:Remember, YAML keys are case-sensitive!**
+
 ## Setting up cert-manage on K8S
 
 cert-manager is a powerful and extensible X.509 certificate controller for Kubernetes and OpenShift workloads. It will obtain certificates from a variety of Issuers, both popular public Issuers as well as private Issuers, and ensure the certificates are valid and up-to-date, and will attempt to renew certificates at a configured time before expiry.

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.persistentVolume.name }}
+  labels:
+    type: {{ .Values.persistentVolume.labels.type }}
+    app: {{ .Values.persistentVolume.labels.app }}
+spec:
+  storageClassName: {{.Values.persistentVolume.storageClassName | quote }}
+  capacity:
+    storage: {{ .Values.persistentVolume.capacity }}
+  accessModes: 
+    {{- range .Values.persistentVolume.accessModes }}
+    - {{ . }}
+    {{- end }}
+  azureDisk:
+    kind: {{ .Values.persistentVolume.azureDisk.kind }}
+    diskName: {{ .Values.persistentVolume.azureDisk.diskName }}
+    diskURI: {{ .Values.persistentVolume.azureDisk.diskURI }}
+  
