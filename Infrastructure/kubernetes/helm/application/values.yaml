@@ -1,4 +1,4 @@
-# Default values for postgres.
+# Default values for application.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -48,6 +48,13 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
@@ -105,7 +112,7 @@ volumes: []
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts: []
-# - name: postgres-volume
+# - name: foo
 #   mountPath: "/etc/foo"
 #   readOnly: true
 
@@ -114,109 +121,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-namespace: dotnet-application
-
-persistentVolume:  
-  name: postgres-volume
-  labels:
-    type: local
-    app: postgres
-  storageClassName: ""
-  capacity: 8Gi
-  accessModes: 
-    - ReadWriteOnce
-  azureDisk:
-    kind: Managed 
-    diskName: pg-disk
-    diskURI: "/subscriptions/b822363d-6075-4596-987a-1f24bce600dd/resourceGroups/CertificateIssuer101/providers/Microsoft.Compute/disks/aks101cluster-disk"
-
-persistentVolumeClaim:
-  name: postgres-volume-claim
-  labels:
-    app: postgres
-  storageClassName: ""
-  volumeName: postgres-volume
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-
-configMap:
-  name: postgres-envs
-  labels:
-    app: postgres
-  data:
-    POSTGRES_DB: ps_db
-    # POSTGRES_USER: postgres
-    # POSTGRES_PASSWORD: postgres 
-    
-secret:
-  name: postgres-secret
-  labels:
-    app: postgres
-  data:
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-
-statefulSet:
-  metadata:
-    name: postgres
-  spec:
-    serviceName: postgres
-    replicas: 1
-    selector:
-      matchLabels:
-        app: postgres
-    template:
-      metadata:
-        labels:
-          app: postgres
-      spec:
-        initContainers:
-          - name: volume-permissions
-            image: busybox
-            imagePullPolicy: "IfNotPresent"
-            command: 
-              - sh 
-              - -c 
-              - "mkdir -p /mnt/data && chown -R 999:999 /mnt/data"
-            volumeMounts:
-              - mountPath: /mnt/data 
-                name: postgredb
-        containers:
-          - name: postgres
-            image: postgres:17.4 
-            imagePullPolicy: "IfNotPresent"
-            ports:
-              - containerPort: 5432  
-            envFrom:
-              - configMapRef:
-                  name: postgres-envs
-              - secretRef:
-                  name: postgres-secret
-            env:
-              - name: PGDATA
-                value: /mnt/data/pgdata
-            volumeMounts:
-              - mountPath:  /mnt/data
-                name: postgredb
-        volumes:
-          - name: postgredb
-            persistentVolumeClaim:
-              claimName: postgres-volume-claim
-
-service:
-  metadata:
-    name: postgres-service
-    labels:
-      app: postgres
-  spec:
-    type: ClusterIP
-    ports:
-      - port: 5432
-        targetPort: 5432
-        protocol: TCP
-    selector:
-      app: postgres

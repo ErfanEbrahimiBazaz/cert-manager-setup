@@ -279,10 +279,26 @@ spec:
     diskURI: {{ .Values.persistentVolume.azureDisk.diskURI }}
 ```
 
+4. Check at client if the helm chart is correctly formed:
+
+```
+helm template .\postgres\ 
+```
+
 After everything is setup, install the chart by giving it a name, run the following command on the root folder where postgres chart resides.:
 
 ```
 helm install postgres-package ./postgres -n dotnet-application
+```
+
+If the command runs successfully, you'll see the following:
+```
+NAME: postgres-package
+LAST DEPLOYED: Sun May 11 02:12:41 2025
+NAMESPACE: dotnet-application
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
 ```
 
 In case we need to rollback, we can run the following command:
@@ -294,6 +310,34 @@ helm rollback postgres-package 1 -n dotnet-application
 4. Use helm template to check the template you have built is valid:
 ```
 helm template .\postgres\
+```
+
+Note: To uninstall a package, run the following command:
+
+```
+helm uninstall postgres-package -n dotnet-application
+```
+
+To debug run the following commands to check if container has started or what is preventing it from starting:
+
+```
+kubectl logs postgres-0 -n dotnet-application -c volume-permissions
+helm uninstall postgres-package -n dotnet-application
+helm install postgres-package ./postgres -n dotnet-application
+kubectl get pods -n dotnet-application
+
+# Confirm the disk is accessible and not in a failed state using Azure CLI:
+az disk show --name <your-disk-name> --resource-group <your-resource-group>
+az disk show --name pg-disk --resource-group CertificateIssuer101 
+
+# Resource Limits: Ensure the node has enough CPU/memory:
+kubectl describe node <node-name>
+
+# Test the Command: If possible, exec into the init container (if it’s running but not completing):
+kubectl exec -it postgres-0 -n dotnet-application -c volume-permissions -- sh
+
+kubectl logs postgres-0 -n dotnet-application -c volume-permissions
+kubectl logs postgres-0 -n dotnet-application -c postgres
 ```
 
 **Note:Remember, YAML keys are case-sensitive!**
@@ -408,3 +452,7 @@ az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 9. Create a bash script to sync certificates from AKS to keyvault.
 10. K9S commands
 11. Sensitive data must be saved in K8S secrets
+12. In statefulset when we make more than 1 replica, does it horizontally scale postgres database?
+13. ArgoCD
+14. Add kubernetes managed identity to managed disk by using Bicep
+
