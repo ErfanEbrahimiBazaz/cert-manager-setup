@@ -20,6 +20,8 @@ az account set --subscription b822363d-6075-4596-987a-1f24bce600dd
 ## Executing the bicep commands:
 
 ```
+az bicep upgrade
+
 az deployment sub create --location westeurope --template-file main.bicep
 ```
 
@@ -95,9 +97,10 @@ We need to keep the storages and share the database data to another external vol
 (we assigned the role management manually to assign the contributor role on Azure Managed Disk )
 
 Then created files for 
-** postgres.pv ** 
-** postgres.pvc ** 
-** postgres.statefulset **
+
++ **postgres.pv** 
++ **postgres.pvc** 
++ **postgres.statefulset**
 
 
 Apply Pv file to apply persistance Volume already created using bicep 
@@ -341,6 +344,50 @@ kubectl logs postgres-0 -n dotnet-application -c postgres
 ```
 
 **Note:Remember, YAML keys are case-sensitive!**
+
+#### Setting up the application helm
+
+```
+helm install razor-page-app ./application -n dotnet-application
+
+helm uninstall razor-page-app -n dotnet-application
+``` 
+
+### Use single helm chart to deploy all sub charts
+
+1. Create a parent helm chart:
+```
+helm create app-stack
+```
+2. Remove unnecessary files: Since the parent chart will only manage subcharts, remove all files in app-stack/templates/
+```
+rm -rf app-stack/templates/*
+```
+3. General structure is as follows:
+
+```
+app-stack/
+├── Chart.yaml
+├── values.yaml
+├── charts/
+│   ├── postgres/
+│   │   ├── Chart.yaml
+│   │   ├── values.yaml
+│   │   ├── templates/
+│   │   │   ├── statefulset.yaml
+│   │   │   ├── service.yaml
+│   │   │   ├── pv.yaml
+│   │   │   ├── pvc.yaml
+│   │   │   ├── configmap.yaml
+│   │   │   ├── secret.yaml
+│   ├── application/
+│   │   ├── Chart.yaml
+│   │   ├── values.yaml
+│   │   ├── templates/
+│   │   │   ├── deployment.yaml
+│   │   │   ├── service.yaml
+```
+
 
 ## Setting up cert-manage on K8S
 

@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: {{.Values.namespace }}
+  name: {{.Values.statefulSet.metadata.name }}
+spec:
+  serviceName: {{.Values.statefulSet.spec.serviceName }}
+  replicas: {{.Values.statefulSet.spec.replicas }}
+  selector:
+    matchLabels:
+      app: {{.Values.statefulSet.spec.selector.matchLabels.app }}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.statefulSet.spec.template.metadata.labels.app }}
+    spec:
+      initContainers:
+      {{- range .Values.statefulSet.spec.template.spec.initContainers }}
+          - name: {{ .name }}
+            image: {{ .image }}
+            imagePullPolicy: {{ .imagePullPolicy }}
+            command: 
+            {{- range .command }}
+              - {{ . | quote }}
+            {{- end }}
+            volumeMounts:
+            {{- range .volumeMounts }}
+              - mountPath: {{ .mountPath }}
+                name: {{ .name }}
+            {{- end }}
+      {{- end }}
+      containers:
+      {{- range .Values.statefulSet.spec.template.spec.containers }}
+        - name: {{ .name }}
+          image: {{ .image }} 
+          imagePullPolicy: {{ .imagePullPolicy }}
+          ports: {{ toYaml .ports | nindent 12 }}
+          envFrom: {{ toYaml .envFrom | nindent 12 }}
+          env: {{ toYaml .env | nindent 12 }}
+          volumeMounts: {{ toYaml .volumeMounts | nindent 12 }}
+      {{- end }}
+      volumes: 
+      {{- range .Values.statefulSet.spec.template.spec.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ .persistentVolumeClaim.claimName }}
+      {{- end }}
