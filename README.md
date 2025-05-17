@@ -388,6 +388,33 @@ app-stack/
 │   │   │   ├── service.yaml
 ```
 
+4. Update Chart.yaml:
+
+Helm installs the charts in the order they appear under Chart.yaml.
+
+```
+apiVersion: v2
+name: app-stack
+description: A Helm chart for deploying a Razor Page application with PostgreSQL
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+  - name: postgres
+    version: "0.1.0"
+    repository: "file://charts/postgres"
+  - name: application
+    version: "0.1.0"
+    repository: "file://charts/application"
+    condition: application.enabled
+```
+
+5. Run helm install to install postgres and application together under one chart:
+
+```
+helm install full-app .\app-stack\ -n dotnet-application
+```
+
 
 ## Setting up cert-manage on K8S
 
