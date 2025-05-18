@@ -1,0 +1,26 @@
+clusterIssuer:
+  metadata:
+    name: letsencrypt-dev
+  spec:
+    acme:
+      email: your-email@example.com
+      server: https://acme-staging-v02.api.letsencrypt.org/directory
+      privateKeySecretRef:
+        name: letsencrypt-dev
+      solvers:
+        - http01:
+            ingress:
+              class: nginx 
+
+certificate:
+  metadata:
+    name: app-cert
+    namespace: dotnet-application
+  spec:
+    secretName: tls-secret
+    issuerRef:
+      name: letsencrypt-dev
+      kind: ClusterIssuer
+    commonName: moravaei.com
+    dnsNames:
+      - moravaei.com

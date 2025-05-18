@@ -466,6 +466,10 @@ containers:
 
 **Note: Helm does not enforce order of creation, but kubernetes resource with initContainers can handle this**
 
+To show all helm charts:
+```
+helm ls --all-namespaces
+```
 
 ## Setting up cert-manage on K8S
 
