@@ -22,6 +22,15 @@ spec:
       nodeSelector:
         "kubernetes.io/os": {{ .Values.deployment.spec.template.spec.nodeSelector.os }}
       serviceAccountName: {{ .Values.deployment.spec.template.spec.serviceAccountName }}
+      initContainers:
+      {{- range .Values.deployment.spec.template.spec.initContainers }}
+        - name: {{ .name }}
+          image: {{ .image }}
+          command: 
+          {{- range .command }}
+            - {{ . }}
+          {{- end }}
+      {{- end }}           
       containers:
       {{- range .Values.deployment.spec.template.spec.containers }}
         - name: {{ .name }}

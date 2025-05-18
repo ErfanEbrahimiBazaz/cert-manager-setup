@@ -415,6 +415,57 @@ dependencies:
 helm install full-app .\app-stack\ -n dotnet-application
 ```
 
+### Make dependencies of subcharts
+
+Sub charts with the same life cycle can be packaged under one parent child. In microservices, each service has its own database, which is uniquely being used. Therefore, in our case application and postgres both have the same life cycle.
+
+As razor page app is stateless and doesn't require pv or pvc, it is created faster than postgres statefulset. Therefore, for a few seconds the pods of the application are in error state. To prevent this we need to make sure that application subchart will be created only and only if the postgres subchart is up and running. Parent's Chart.yaml create the subcharts in the order they appear but it doesn't gaurantee that the previous chart is live and healthy before creating the next one. It creates them asynchronously. Helm does not provide any other mechansim for the dependency. Therefore, at the level of kubernetes resource this must be handled. To do so, we need to use initContainer to make sure that the main application container is created only and only if the postgres service is ready. 
+
+1. Add the following values:
+
+```
+initContainers:
+  - name: wait-for-postgres
+    image: busybox
+    command: ['sh', '-c', 'until nc -z postgres-service 5432; do echo "waiting for postgres"; sleep 20; done;']
+containers:
+  - name: razor-app-container
+    image: aks101acr.azurecr.io/aks-app1:1.2.0
+    imagePullPolicy: Always
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+```
+
+2. Make sure that in the deployment the values are being used in initContainer:
+
+```
+initContainers:
+{{- range .Values.deployment.spec.template.spec.initContainers }}
+  - name: {{ .name }}
+    image: {{ .image }}
+    command: 
+    {{- range .command }}
+      - {{ . }}
+    {{- end }}
+{{- end }}           
+containers:
+{{- range .Values.deployment.spec.template.spec.containers }}
+  - name: {{ .name }}
+    image: {{ .image }}
+    imagePullPolicy: {{ .imagePullPolicy }}
+    ports:
+    {{- range .ports }}
+      - name: {{ .name }}
+        containerPort: {{ .containerPort }}
+        protocol: {{ .protocol }}
+    {{- end }}
+{{- end }}
+```
+
+**Note: Helm does not enforce order of creation, but kubernetes resource with initContainers can handle this**
+
 
 ## Setting up cert-manage on K8S
 
@@ -529,4 +580,7 @@ az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 12. In statefulset when we make more than 1 replica, does it horizontally scale postgres database?
 13. ArgoCD
 14. Add kubernetes managed identity to managed disk by using Bicep
+15. Add a G-series nodepool to the AKS cluster.
+16. Run pods on the g-series nodepool by using labels.
+17. Run LM-Studio API with for a chatbot and expose it as a ClusterIP service to be used by the razor page application.
 

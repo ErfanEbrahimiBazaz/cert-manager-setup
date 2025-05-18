@@ -45,16 +45,3 @@ statefulSet:
             persistentVolumeClaim:
               claimName: postgres-volume-claim
 
-service:
-  metadata:
-    name: postgres-service
-    labels:
-      app: postgres
-  spec:
-    type: ClusterIP
-    ports:
-      - port: 5432
-        targetPort: 5432
-        protocol: TCP
-    selector:
-      app: postgres

@@ -26,6 +26,10 @@ application:
           nodeSelector:
             os: linux
           serviceAccountName: default
+          initContainers:
+            - name: wait-for-postgres
+              image: busybox
+              command: ['sh', '-c', 'until nc -z postgres-service 5432; do echo "waiting for postgres"; sleep 20; done;']
           containers:
             - name: razor-app-container
               image: aks101acr.azurecr.io/aks-app1:1.2.0
@@ -209,3 +213,17 @@ postgres:
     data:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+   
+  service:
+    metadata:
+      name: postgres-service
+      labels:
+        app: postgres
+    spec:
+      type: ClusterIP
+      ports:
+        - port: 5432
+          targetPort: 5432
+          protocol: TCP
+      selector:
+        app: postgres
