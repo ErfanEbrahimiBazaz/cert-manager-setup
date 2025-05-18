@@ -16,3 +16,4 @@ data:
 # kubectl get configmap -n dotnet-application
 # kubectl delete configmap postgres-secret -n dotnet-application
 # kubectl get configmap postgres-envs -n dotnet-application -o yaml
+# kubectl describe configmap postgres-envs -n dotnet-application
