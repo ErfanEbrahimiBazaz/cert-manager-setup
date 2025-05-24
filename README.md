@@ -415,6 +415,17 @@ dependencies:
 helm install full-app .\app-stack\ -n dotnet-application
 ```
 
+6. For any upgrades, run upgrade command:
+```
+helm upgrade full-app .\app-stack\ -n dotnet-application
+```
+
+7. A safe option is to use the following command. If the chart already exists, it will upgrade it. And if it doesn't exists, it will install it:
+
+```
+helm upgrade --install full-app .\app-stack\ -n dotnet-application
+```
+
 ### Make dependencies of subcharts
 
 Sub charts with the same life cycle can be packaged under one parent child. In microservices, each service has its own database, which is uniquely being used. Therefore, in our case application and postgres both have the same life cycle.
@@ -502,6 +513,24 @@ helm install \
 helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.17.0 --set crds.enabled=true
 ```
 
+5. Create Issuer or CertificateIssuer on kubernetes.
+6. Create certificate
+7. Install cmctl, a tool for certificate manager to read the certificates.
+To install this tool, on windows you need to install it manually:
+Install go from [this link](https://cert-manager.io/docs/reference/cmctl/#installation)
+
+Then install cmctl by using the following go command, all isntructions are avaiable at [this link](https://github.com/cert-manager/cmctl):
+```
+go install github.com/cert-manager/cmctl/v2@latest
+```
+
+Get the certificate value by cmctl:
+```
+cmctl status certificate www -n cert-manager 
+```
+
+
+
 **Note:** Step 1 to 3 have to be applied once per machine.
 
 ## Read Kubernetes resources
@@ -565,6 +594,22 @@ selector:
 
 **Note**: CertificateIssuer which is a custome resource definition doesn't have a namespace, a so-called non-namespaced resource.
 
+## Recommended toolstack
+1. Headlamp: a great tool for DevOps engineers with user-friendly GUI.
+2. k9s
+
+## Debugging traffic issues:
+
+```
+az network nsg rule list --nsg-name <your-nsg-name> --resource-group <your-resource-group>
+
+nmap -p 80,443 50.85.73.63
+
+
+
+az network nsg rule list --nsg-name aks-agentpool-35677418-nsg --resource-group mc_certificateissuer101_aks101cluster_westeurope
+```
+
 ## To Dos
 
 1. How to connect an ACR to K8S cluster?
@@ -587,4 +632,7 @@ az aks update -n aks101cluster -g CertificateIssuer101 --attach-acr aks101acr
 15. Add a G-series nodepool to the AKS cluster.
 16. Run pods on the g-series nodepool by using labels.
 17. Run LM-Studio API with for a chatbot and expose it as a ClusterIP service to be used by the razor page application.
-
+18. Import an existing kubernetes resource into a helm release, to prevent this error:
+  ```
+  Error: INSTALLATION FAILED: Unable to continue with install: ClusterIssuer "selfsigned" in namespace "" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key "app.kubernetes.io/managed-by": must be set to "Helm"; annotation validation error: missing key "meta.helm.sh/release-name": must be set to "selfsigned-clusterissuer"; annotation validation error: missing key "meta.helm.sh/release-namespace": must be set to "default"
+  ```

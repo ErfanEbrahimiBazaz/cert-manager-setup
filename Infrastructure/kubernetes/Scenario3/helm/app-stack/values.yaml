@@ -38,6 +38,22 @@ application:
                 - name: http
                   containerPort: 8080
                   protocol: TCP
+                - name: https
+                  containerPort: 8081
+                  protocol: TCP
+              volumeMounts:
+                - name: tls
+                  mountPath: /etc/tls
+                  readOnly: true
+              env:
+                - name: TLS_CERT
+                  value: /etc/tls/tls.crt
+                - name: TLS_KEY
+                  value: /etc/tls/tls.key
+          volumes:
+          - name: tls
+            secret:
+              secretName: www-tls-moravaei-com
 
 
   service:
@@ -52,8 +68,33 @@ application:
           targetPort: 8080
           protocol: TCP
           name: http
+        - port: 443
+          targetPort: 8081
+          protocol: TCP
+          name: https
       selector: 
         app: razor-app
+
+  certificate:
+    metadata:
+      name: crt-moravaei-com
+    spec:
+      secretName: www-tls-moravaei-com
+      privateKey:
+        rotationPolicy: Always
+      commonName: www.moravaei.com
+      dnsNames:
+        - www.moravaei.com
+        - moravaei.com
+      usages:
+        - digital signature
+        - key encipherment
+        - server auth
+      issuerRef:
+        name: selfsigned-dev
+        kind: ClusterIssuer
+
+
 
 
 postgres: 
@@ -227,3 +268,4 @@ postgres:
           protocol: TCP
       selector:
         app: postgres
+

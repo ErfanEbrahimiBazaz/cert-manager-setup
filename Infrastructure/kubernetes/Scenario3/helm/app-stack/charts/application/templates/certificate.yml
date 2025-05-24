@@ -1,0 +1,22 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.certificate.metadata.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  secretName: {{ .Values.certificate.spec.secretName }}
+  privateKey:
+    rotationPolicy: {{ .Values.certificate.spec.privateKey.rotationPolicy }}
+  commonName: {{ .Values.certificate.spec.commonName }}
+  dnsNames:
+  {{- range .Values.certificate.spec.dnsNames }}
+    - {{ . }}
+  {{- end }}
+  usages:
+  {{- range .Values.certificate.spec.usages }}
+    - {{ . }}
+  {{- end }}
+  issuerRef:
+    name: {{ .Values.certificate.spec.issuerRef.name }}
+    kind: {{ .Values.certificate.spec.issuerRef.kind }}

@@ -1,0 +1,5 @@
+clusterIssuer:
+  metadata:
+    name: selfsigned-dev
+  spec:
+    selfSigned: {}

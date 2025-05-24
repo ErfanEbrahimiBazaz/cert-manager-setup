@@ -1,0 +1,22 @@
+---
+# certificate.yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: www
+  namespace: dotnet-application
+spec:
+  secretName: www-tls-moravaei-com
+  privateKey:
+    rotationPolicy: Always
+  commonName: moravaei.com
+  dnsNames:
+    - www.moravaei.com
+    - moravaei.com
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+  issuerRef:
+    name: selfsigned
+    kind: ClusterIssuer
